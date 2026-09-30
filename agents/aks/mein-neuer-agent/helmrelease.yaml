@@ -2,7 +2,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: mein-neuer-agent
-  namespace: dev
+  namespace: sb-mein-neuer-agent
 spec:
   interval: 10m
   chart:
@@ -36,8 +36,16 @@ spec:
       pvc:
         enabled: true
     uaConfig:
-      netname: "MEIN_NEUER_AGENT"
+      netname: "MEIN-NEUER-AGENT"
       omsServers: "7878@ps2.stonebranchdev.cloud"
       uagAutostart: "yes"
       omsAutostart: "no"
       uemAutostart: "no"
+    workloadIdentity:
+      enabled: false
+    istio:
+      enabled: true
+      host: "mein-neuer-agent.stonebranchdev.cloud"
+      TLSProtocol: "TLSV1_2"
+      udmConnectionPort: 446
+      udmConnectionPortInternal: 15446
