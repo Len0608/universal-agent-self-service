@@ -3,4 +3,5 @@ kind: Kustomization
 resources:
   - ua-stonebranch-k8s
   - ua-dev-k8s
+  - ua-gitops-demo
 # Self-service: add one line per new agent directory here as part of the PR
