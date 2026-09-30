@@ -21,20 +21,35 @@ spec:
     remediation:
       retries: 3
       remediateLastFailure: true
-  # Base defaults applied first, then agent-specific overrides below
-  valuesFrom:
-    - kind: ConfigMap
-      name: aks-base-values
-      namespace: flux-system
-      optional: false
   values:
     uaDeployment:
       image:
+        repository: stonebranch/universal-agent
         tag: "7.9.0.0"
+      replicas: 1
+      resources:
+        requests:
+          memory: "512Mi"
+          cpu: "250m"
+        limits:
+          memory: "1Gi"
+          cpu: "1000m"
+      storageRequest: 1Gi
+      storageClassName: "default"
+      accessMode: ReadWriteOnce
+      pvc:
+        enabled: true
     uaConfig:
       netname: "UA-STONEBRANCH-K8S"
       omsServers: "7878@ps2.stonebranchdev.cloud"
+      uagAutostart: "yes"
+      omsAutostart: "no"
+      uemAutostart: "no"
     workloadIdentity:
       enabled: false
     istio:
+      enabled: true
       host: "ua-stonebranch-k8s.stonebranchdev.cloud"
+      TLSProtocol: "TLSV1_2"
+      udmConnectionPort: 446
+      udmConnectionPortInternal: 15446
