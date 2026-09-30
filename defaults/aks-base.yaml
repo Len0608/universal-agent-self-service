@@ -1,0 +1,39 @@
+# Shared defaults applied to every AKS agent before the per-agent values layer.
+# Teams override only what they need in their own values.yaml.
+
+uaDeployment:
+  image:
+    repository: stonebranch/universal-agent
+    # tag is intentionally absent here — required in per-agent values (schema enforces this)
+  replicas: 1
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+  storageRequest: 1Gi
+  storageClassName: "default"
+  accessMode: ReadWriteOnce
+  pvc:
+    enabled: true
+
+istio:
+  enabled: true
+  TLSProtocol: "TLSV1_2"
+  udmConnectionPort: 446
+  udmConnectionPortInternal: 15446
+
+workloadIdentity:
+  enabled: false
+
+uaConfig:
+  uagAutostart: "yes"
+  omsAutostart: "no"
+  uemAutostart: "no"
+  # OTel — disabled by default; enable per-agent to point at the Alloy receiver
+  otelenabletracing: ""
+  otelexportmetrics: ""
+  oteltraceendpoint: ""
+  otelmetricsendpoint: ""

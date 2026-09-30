@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-ua
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "universal-controller.labels" . | nindent 4 }}
+    app.kubernetes.io/component: ua
+spec:
+  replicas: {{ .Values.uaDeployment.replicas }}
+  selector:
+    matchLabels:
+      {{- include "universal-controller.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: ua
+  template:
+    metadata:
+      labels:
+        {{- include "universal-controller.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: ua
+    spec:
+      {{- if .Values.workloadIdentity.enabled }}
+      serviceAccountName: {{ .Values.workloadIdentity.serviceAccountName }}
+      {{- end }}    
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: uac-ua
+          image: "{{ .Values.uaDeployment.image.repository }}:{{ .Values.uaDeployment.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 7878
+            - containerPort: 7887
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-ua-configmap
+          volumeMounts:
+            - name: oms-storage
+              mountPath: "/var/opt/universal/spool/oms"
+          resources:
+            {{- toYaml .Values.uaDeployment.resources | nindent 12 }}
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - |
+                  pgrep -x omssrv >/dev/null ||
+                  pgrep -x ubroker >/dev/null ||
+                  pgrep -x uagsrv >/dev/null ||
+                  pgrep -x uemsrv >/dev/null
+            initialDelaySeconds: 10
+            periodSeconds: 10
+
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - |
+                  pgrep -x omssrv >/dev/null ||
+                  pgrep -x ubroker >/dev/null ||
+                  pgrep -x uagsrv >/dev/null ||
+                  pgrep -x uemsrv >/dev/null
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: oms-storage
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-ua-pvc

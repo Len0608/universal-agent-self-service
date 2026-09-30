@@ -1,0 +1,11 @@
+# Infra team must approve changes to the GitOps engine itself
+/gitops/argocd/          @stonebranchpm/infra
+/gitops/flux/            @stonebranchpm/infra
+/gitops/defaults/        @stonebranchpm/infra
+
+# Agent directories: infra approves new additions; existing owners can self-merge updates
+/gitops/agents/aks/ua-stonebranch-k8s/  @stonebranchpm/infra
+/gitops/agents/aks/ua-dev-k8s/          @stonebranchpm/infra
+
+# New teams: add a line here when onboarding, pointing at the team's GitHub group
+# /gitops/agents/aks/ua-<team-name>/    @stonebranchpm/<team-github-group>

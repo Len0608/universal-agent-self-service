@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: stonebranch-gitops
+  namespace: argocd
+  # Keep this Application even if its child ApplicationSets are deleted (prevents cascade wipe)
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io/background
+spec:
+  project: stonebranch
+  source:
+    repoURL: https://github.com/Len0608/universal-agent-self-service.git
+    targetRevision: HEAD
+    path: gitops/argocd
+    directory:
+      recurse: true
+      include: "*.yaml"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true

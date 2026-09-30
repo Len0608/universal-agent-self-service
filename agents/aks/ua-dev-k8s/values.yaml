@@ -1,0 +1,28 @@
+# Agent: UA-DEV-K8S
+# Controller: ps1.stonebranchdev.cloud
+# Namespace: sb-ua-dev-k8s (ArgoCD creates this)
+# Identity: Azure Workload Identity (managed identity ua-dev-identity)
+
+uaDeployment:
+  image:
+    tag: "7.9.0.0"
+
+uaConfig:
+  netname: "UA-DEV-K8S"
+  omsServers: "7878@ps1.stonebranchdev.cloud"
+  businessservices: ""
+
+  # OTel — forward to Grafana Alloy in dev namespace
+  otelenabletracing: "yes"
+  otelexportmetrics: "yes"
+  oteltraceendpoint: "http://alloy.dev.svc.cluster.local:4318"
+  otelmetricsendpoint: "http://alloy.dev.svc.cluster.local:4318"
+  otelservicename: "ua-dev-k8s"
+
+workloadIdentity:
+  enabled: true
+  clientId: "e0ad4b70-59ef-474b-832c-77ecc99d6c6f"
+  serviceAccountName: "ua-dev-k8s-sa"
+
+istio:
+  host: "ua-dev-k8s.stonebranchdev.cloud"

@@ -1,0 +1,23 @@
+{{- if .Values.uaDeployment.pvc.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-ua-pvc
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "universal-controller.labels" . | nindent 4 }}
+    app.kubernetes.io/component: oms-storage
+  annotations:
+    "helm.sh/resource-policy": keep
+spec:
+  accessModes: [ {{ .Values.uaDeployment.accessMode }} ]
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: {{ .Values.uaDeployment.storageRequest }}
+  {{- if .Values.UA.persistentVolume.enabled }}
+  storageClassName: {{ .Values.persistentVolume.name | quote }}
+  {{- else }}
+  storageClassName: {{ .Values.uaDeployment.storageClassName | quote }}
+  {{- end }}
+{{- end }}

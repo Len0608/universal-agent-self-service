@@ -1,0 +1,52 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: ua-ocp-agents
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/Len0608/universal-agent-self-service.git
+        revision: HEAD
+        directories:
+          - path: gitops/agents/ocp/*
+  template:
+    metadata:
+      name: "ua-{{path.basename}}"
+      labels:
+        app.kubernetes.io/managed-by: argocd-applicationset
+        stonebranch/platform: ocp
+        stonebranch/agent: "{{path.basename}}"
+    spec:
+      project: stonebranch
+      sources:
+        - repoURL: https://github.com/Len0608/universal-agent-self-service.git
+          targetRevision: HEAD
+          path: helm-repo/helm/helm_ua_v1.5.1-ocp
+          helm:
+            releaseName: "ua-{{path.basename}}"
+            valueFiles:
+              - $values/gitops/defaults/ocp-base.yaml
+              - $values/gitops/agents/ocp/{{path.basename}}/values.yaml
+
+        - repoURL: https://github.com/Len0608/universal-agent-self-service.git
+          targetRevision: HEAD
+          ref: values
+
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: "stonebranch-{{path.basename}}"
+
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
+
+      ignoreDifferences:
+        - group: apps
+          kind: Deployment
+          jsonPointers:
+            - /spec/replicas

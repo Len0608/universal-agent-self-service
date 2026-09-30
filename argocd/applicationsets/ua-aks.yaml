@@ -1,0 +1,61 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: ua-aks-agents
+  namespace: argocd
+spec:
+  # One Application per subdirectory under gitops/agents/aks/
+  generators:
+    - git:
+        repoURL: https://github.com/Len0608/universal-agent-self-service.git
+        revision: HEAD
+        directories:
+          - path: gitops/agents/aks/*
+  template:
+    metadata:
+      name: "ua-{{path.basename}}"
+      labels:
+        app.kubernetes.io/managed-by: argocd-applicationset
+        stonebranch/platform: aks
+        stonebranch/agent: "{{path.basename}}"
+    spec:
+      project: stonebranch
+      # Multi-source: chart from the repo, agent values layered on top of shared defaults
+      sources:
+        # Source 1: the chart (pinned to current AKS variant; swap to charts/universal-agent
+        # once Phase 2 consolidation lands)
+        - repoURL: https://github.com/Len0608/universal-agent-self-service.git
+          targetRevision: HEAD
+          path: helm-repo/helm/helm_ua_v1.5.1-aks
+          helm:
+            releaseName: "ua-{{path.basename}}"
+            valueFiles:
+              # Base AKS defaults applied first, agent-specific values override
+              - $values/gitops/defaults/aks-base.yaml
+              - $values/gitops/agents/aks/{{path.basename}}/values.yaml
+
+        # Source 2: values-only ref (no templates rendered from this source)
+        - repoURL: https://github.com/Len0608/universal-agent-self-service.git
+          targetRevision: HEAD
+          ref: values
+
+      destination:
+        server: https://kubernetes.default.svc
+        # Each agent gets its own namespace for workload isolation
+        namespace: "sb-{{path.basename}}"
+
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
+
+      # Drift detection: alert but don't auto-sync if the agent config was changed
+      # out-of-band (e.g. emergency kubectl patch)
+      ignoreDifferences:
+        - group: apps
+          kind: Deployment
+          jsonPointers:
+            - /spec/replicas  # allow manual scale without triggering selfHeal

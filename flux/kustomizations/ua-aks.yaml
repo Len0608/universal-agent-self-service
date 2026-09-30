@@ -1,0 +1,24 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: ua-aks-agents
+  namespace: flux-system
+spec:
+  interval: 5m
+  sourceRef:
+    kind: GitRepository
+    name: helm-charts
+  # Flux recursively discovers and applies every HelmRelease manifest under this path.
+  # Adding a new agent directory with a helmrelease.yaml is all a team needs to do.
+  path: ./gitops/agents/aks
+  prune: true          # removes the HelmRelease (and thus the agent) when the dir is deleted
+  wait: false          # don't block the parent reconcile while Helm charts settle
+  timeout: 10m
+  # Automatically create the target namespace declared in each HelmRelease
+  patches:
+    - patch: |
+        - op: add
+          path: /spec/install/createNamespace
+          value: true
+      target:
+        kind: HelmRelease

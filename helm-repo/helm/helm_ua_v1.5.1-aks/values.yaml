@@ -1,0 +1,310 @@
+#################################################################################################
+# UA Helm Deployment
+#################################################################################################
+### Workload Identity configuration
+workloadIdentity:
+  enabled: true
+  clientId: ""
+  serviceAccountName: ""
+
+UA:
+  persistentVolume: # Using established persistent volume
+    enabled: false
+
+############################################ Istio #####################################################
+istio:
+  enabled: true
+  host: ""
+  hostCredentials: ""
+  TLSProtocol: "TLSV1_2"
+  udmConnectionPort: 446
+  udmConnectionPortInternal: 15446
+############################################ OMS Deployment ###########################################
+uaDeployment:
+  pvc:
+    enabled: true
+  replicas: 1
+  image:
+    repository: stonebranch/universal-agent
+    tag: latest
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+  storageRequest: 1Gi
+  storageClassName: "default"
+  accessMode: ReadWriteOnce
+
+persistentVolume:
+  name: ""
+
+############################################ OMS ConfigMap values #####################################
+uaConfig:
+  # ------- UAG -------
+  uagagentclusters: ""
+  businessservices: ""
+  extensionacceptlist: ""
+  extensioncanceltimeout: ""
+  extensiondeployonregistration: ""
+  extensionpythonlist: ""
+  netname: ""
+  omsServers: ""
+  processcanceltimeout: ""
+  uagAutostart: "yes"
+  uagLoglvl: ""
+  uagLevel: ""
+  uagtlssnihostname: "" # Will be auto filled from tlssnihostnameref if enabled
+  # ------- OMS -------
+  omsAutostart: "no"
+  codepage: ""
+  omsDNSCacheTimeout: ""
+  omsIndexCacheSize: ""
+  omsMaxConnections: ""
+  maxfilesize: ""
+  maxmessagesize: ""
+  omsMaxSSLProtocol: ""
+  omsLanguage: ""
+  omsMinSSLProtocol: ""
+  chunksize: ""
+  omsMSGCleanupInterval: ""
+  omsMSGDataFlushInt: ""
+  omsMSGSuppressionList: ""
+  otelenabletracing: ""
+  otelexportmetrics: ""
+  otelmetricsendpoint: ""
+  otelmetricsexportinterval: ""
+  otelservicename: ""
+  otelsslcacertpath: ""          # file path if used -> triggers mount
+  otelsslclientcertpath: ""      # file path if used -> triggers mount
+  otelsslclientkeypath: ""       # file path if used -> triggers mount
+  otelsslinsecureskipverify: ""
+  oteltraceendpoint: ""
+  omsRequiresSSL: ""
+  omsServiceBacklog: ""
+  omsSVCIAddr: ""
+  omsSVCIPort: ""
+  omsServiceTimeout: ""
+  sslcipherlist: ""
+  sslciphersuites: ""
+  omstracefilelines: ""
+  omstracetable: ""
+
+  # Optional OMS cert paths (leave empty to skip)
+  omsClientCertificatePath: ""   # file path -> triggers mount
+  omsClientKeyPath: ""           # file path -> triggers mount
+  omsServerCertificatePath: ""   # file path -> triggers mount
+  omsCACertificatePath: ""       # file path -> triggers mount
+
+  # ------- UBR -------
+  ubractivitymonitoring: ""
+  ubrcacerts: ""                 # file path -> triggers mount
+  ubrcert: ""                    # file path -> triggers mount
+  ubrcrl: ""                     # file path -> triggers mount
+  ubrdbfilegenerations: ""
+  ubrdnscachetimeout: ""
+  ubrecdsacert: ""               # file path -> triggers mount
+  ubrecdsaprivatekeypwd: ""
+  ubrecdsaprivatekey: ""         # file path -> triggers mount
+  ubreventgeneration: ""
+  ubrdest: ""
+  ubrlevel: ""
+  ubrmonitoreventexp: ""
+  ubrmountpoint: ""
+  ubrmountpointmode: ""
+  ubrmsgsuppressionlist: ""
+  ubrpersistenteventexp: ""
+  ubrprivatekey: ""              # file path -> triggers mount
+  ubrprivatekeypwd: ""
+  ubrretrymaxcomp: ""
+  ubrsafkeyring: ""
+  ubrsafkeyringlabel: ""
+  ubrservicebacklog: ""
+  ubrsvcipaddr: ""
+  ubrsvcport: ""
+  ubrshrmountpoint: ""
+  ubrshrmountpointmode: ""
+  ubrsmfexitloadlibrary: ""
+  ubrsslimplementation: ""
+  ubrsystemid: ""
+  ubrtcprecvbuffer: ""
+  ubrtcpsendbuffer: ""
+  ubrtracefilelines: ""
+  ucmdtracetable: ""
+  ubrucmdstcsupport: ""
+  ubrucmdpath: ""
+
+  # ------- UEM -------
+  uemAutostart: "no"
+
+  # ------- UDM (paths empty by default; fill to trigger mounts) -------
+  udmackwindow: ""
+  udmallowreplonrename: ""
+  udmbifdirectory: ""
+  udmcacerts: ""                 # file path -> triggers mount
+  udmcert: ""                    # file path -> triggers mount
+  udmdaystilexpire: ""
+  udmcrl: ""                     # file path -> triggers mount
+  udmframeinterval: ""
+  udmidletimeout: ""
+  udmkeepaliveinterval: ""
+  udmmergelog: ""
+  udmlevel: ""
+  udmmodetype: ""
+  udmmsgsuppressionlist: ""
+  udmdelay: ""
+  udmnetworkfaulttolerant: ""
+  udmopenretry: ""
+  udmopenretrycount: ""
+  udmopenretryinterval: ""
+  udmoutboundip: ""
+  udmplfdirectory: ""
+  udmprivatekey: ""              # file path -> triggers mount
+  udmprivatekeypwd: ""
+  udmproxycertificates: ""       # file path -> triggers mount
+  udmretrycount: ""
+  udmretryinterval: ""
+  udmrecvbufssize: ""
+  udmport: ""
+  udmsafkeyring: ""
+  udmsafkeyringlabel: ""
+  udmscript: ""
+  udmoptions: ""
+  udmsendbufssize: ""
+  udmserverstopconditions: ""
+  udmsizeattrib: ""
+  udmsslimplementation: ""
+  udmsystemid: ""
+  udmtcpnodelay: ""
+  udmtcprecvbuffer: ""
+  udmtcpsendbuffer: ""
+  udmtracefilelines: ""
+  udmtracetable: ""
+  udmucmdpath: ""
+  udmumask: ""
+  udmusapdpath: ""
+  udmverifyhostname: ""
+
+######################################## Generic certificate mounts for OMS ########################################
+# For each cert-like value above, add a Secret mapping here. The Deployment will:
+# - check if the *value path* is non-empty, and the cert entry is enabled,
+# - then create a Secret volume and mount it at mountDir with fileName (using subPath if needed).
+certs:
+  ua:
+    # OpenTelemetry
+    otelsslcacertpath:
+      enabled: false
+      secretName: ""
+      secretKey: "otel-ca.crt"
+      mountDir: "/etc/oms-certs/otel"
+      fileName: "ca.crt"
+    otelsslclientcertpath:
+      enabled: false
+      secretName: ""
+      secretKey: "otel-client.crt"
+      mountDir: "/etc/oms-certs/otel"
+      fileName: "client.crt"
+    otelsslclientkeypath:
+      enabled: false
+      secretName: ""
+      secretKey: "otel-client.key"
+      mountDir: "/etc/oms-certs/otel"
+      fileName: "client.key"
+
+    # OMS direct certs
+    omsClientCertificatePath:
+      enabled: false
+      secretName: ""
+      secretKey: "oms-client.crt"
+      mountDir: "/etc/oms-certs/oms"
+      fileName: "client.crt"
+    omsClientKeyPath:
+      enabled: false
+      secretName: ""
+      secretKey: "oms-client.key"
+      mountDir: "/etc/oms-certs/oms"
+      fileName: "client.key"
+    omsServerCertificatePath:
+      enabled: false
+      secretName: ""
+      secretKey: "oms-server.crt"
+      mountDir: "/etc/oms-certs/oms"
+      fileName: "server.crt"
+    omsCACertificatePath:
+      enabled: false
+      secretName: ""
+      secretKey: "oms-ca.crt"
+      mountDir: "/etc/oms-certs/oms"
+      fileName: "ca.crt"
+
+    # UBR
+    ubrcacerts:
+      enabled: false
+      secretName: ""
+      secretKey: "ubr-ca.crt"
+      mountDir: "/etc/oms-certs/ubr"
+      fileName: "ca.crt"
+    ubrcert:
+      enabled: false
+      secretName: ""
+      secretKey: "ubr.crt"
+      mountDir: "/etc/oms-certs/ubr"
+      fileName: "ubr.crt"
+    ubrcrl:
+      enabled: false
+      secretName: ""
+      secretKey: "ubr.crl"
+      mountDir: "/etc/oms-certs/ubr"
+      fileName: "ubr.crl"
+    ubrecdsacert:
+      enabled: false
+      secretName: ""
+      secretKey: "ubr-ecdsa.crt"
+      mountDir: "/etc/oms-certs/ubr"
+      fileName: "ecdsa.crt"
+    ubrecdsaprivatekey:
+      enabled: false
+      secretName: ""
+      secretKey: "ubr-ecdsa.key"
+      mountDir: "/etc/oms-certs/ubr"
+      fileName: "ecdsa.key"
+    ubrprivatekey:
+      enabled: false
+      secretName: ""
+      secretKey: "ubr.key"
+      mountDir: "/etc/oms-certs/ubr"
+      fileName: "ubr.key"
+
+    # UDM
+    udmcacerts:
+      enabled: false
+      secretName: ""
+      secretKey: "udm-ca.crt"
+      mountDir: "/etc/oms-certs/udm"
+      fileName: "ca.crt"
+    udmcert:
+      enabled: false
+      secretName: ""
+      secretKey: "udm-cert.crt"
+      mountDir: "/etc/oms-certs/udm"
+      fileName: "udm-cert.crt"
+    udmcrl:
+      enabled: false
+      secretName: ""
+      secretKey: "udm.crl"
+      mountDir: "/etc/oms-certs/udm"
+      fileName: "udm.crl"
+    udmprivatekey:
+      enabled: false
+      secretName: ""
+      secretKey: "udm.key"
+      mountDir: "/etc/oms-certs/udm"
+      fileName: "udm.key"
+    udmproxycertificates:
+      enabled: false
+      secretName: ""
+      secretKey: "udm-proxy.pem"
+      mountDir: "/etc/oms-certs/udm"
+      fileName: "proxy.pem"

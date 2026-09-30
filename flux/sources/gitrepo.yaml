@@ -1,0 +1,16 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: helm-charts
+  namespace: flux-system
+spec:
+  interval: 1m
+  url: https://github.com/Len0608/universal-agent-self-service.git
+  ref:
+    branch: main
+  # Narrow the reconcile surface to avoid unnecessary re-syncs on unrelated changes
+  ignore: |
+    /.github/
+    /docs/
+    /tests/
+    *.md

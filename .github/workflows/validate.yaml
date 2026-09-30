@@ -1,0 +1,82 @@
+name: GitOps PR Validation
+
+on:
+  pull_request:
+    paths:
+      - "gitops/agents/**"
+      - "helm-repo/helm/**"
+
+jobs:
+  validate-agents:
+    name: Validate agent manifests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: "3.15.0"
+
+      - name: Install kubeconform
+        run: |
+          curl -sL https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz | tar xz
+          sudo mv kubeconform /usr/local/bin/
+
+      - name: Detect changed agent directories (AKS)
+        id: changed
+        run: |
+          # Find agent dirs that changed in this PR
+          git diff --name-only origin/${{ github.base_ref }}...HEAD \
+            | grep '^gitops/agents/aks/' \
+            | awk -F/ '{print $1"/"$2"/"$3"/"$4}' \
+            | sort -u > /tmp/changed_agents.txt
+          cat /tmp/changed_agents.txt
+          echo "count=$(wc -l < /tmp/changed_agents.txt)" >> $GITHUB_OUTPUT
+
+      - name: Schema + template validation (AKS agents)
+        if: steps.changed.outputs.count > 0
+        run: |
+          CHART=helm-repo/helm/helm_ua_v1.5.1-aks
+          DEFAULTS=gitops/defaults/aks-base.yaml
+          ERRORS=0
+
+          while IFS= read -r agent_dir; do
+            VALUES="$agent_dir/values.yaml"
+            RELEASE=$(basename "$agent_dir")
+
+            echo "── Validating $RELEASE ──"
+
+            # 1. Schema validation via helm lint (picks up values.schema.json)
+            if ! helm lint "$CHART" -f "$DEFAULTS" -f "$VALUES" --quiet; then
+              echo "FAIL: helm lint failed for $RELEASE"
+              ERRORS=$((ERRORS + 1))
+            fi
+
+            # 2. Render and validate against Kubernetes schemas
+            if ! helm template "$RELEASE" "$CHART" \
+                   -f "$DEFAULTS" -f "$VALUES" \
+                   --namespace "sb-$RELEASE" \
+                 | kubeconform -strict -summary; then
+              echo "FAIL: kubeconform failed for $RELEASE"
+              ERRORS=$((ERRORS + 1))
+            fi
+
+            # 3. Validate Flux HelmRelease if present
+            HR="$agent_dir/helmrelease.yaml"
+            if [ -f "$HR" ]; then
+              kubeconform -strict -schema-location default \
+                -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
+                "$HR" || { echo "FAIL: HelmRelease schema invalid for $RELEASE"; ERRORS=$((ERRORS + 1)); }
+            fi
+
+          done < /tmp/changed_agents.txt
+
+          exit $ERRORS
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "### Validation complete" >> $GITHUB_STEP_SUMMARY
+          echo "Changed agents:" >> $GITHUB_STEP_SUMMARY
+          cat /tmp/changed_agents.txt >> $GITHUB_STEP_SUMMARY || echo "(none)" >> $GITHUB_STEP_SUMMARY

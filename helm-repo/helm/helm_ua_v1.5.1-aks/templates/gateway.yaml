@@ -1,0 +1,19 @@
+{{- if .Values.istio.enabled }}
+apiVersion: networking.istio.io/v1
+kind: Gateway
+metadata:
+  name: '{{ .Release.Name }}-ua-gateway'
+  namespace: {{ .Release.Namespace | quote }}
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: {{ .Values.istio.udmConnectionPortInternal }}
+      name: udm-tls
+      protocol: TLS
+    tls:
+      mode: PASSTHROUGH
+    hosts:
+    - {{ .Values.istio.host | quote }}
+{{- end }}

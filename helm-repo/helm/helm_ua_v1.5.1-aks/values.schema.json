@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ua-aks values",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["uaConfig", "uaDeployment"],
+  "properties": {
+    "uaConfig": {
+      "type": "object",
+      "required": ["netname", "omsServers"],
+      "properties": {
+        "netname": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Agent identity registered with UAC. Must be unique per controller."
+        },
+        "omsServers": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[0-9]+@.+$",
+          "description": "OMS server address in port@hostname format, e.g. 7878@ps1.stonebranchdev.cloud"
+        },
+        "uagAutostart": { "type": "string", "enum": ["yes", "no", ""] },
+        "omsAutostart": { "type": "string", "enum": ["yes", "no", ""] },
+        "uemAutostart": { "type": "string", "enum": ["yes", "no", ""] },
+        "otelenabletracing": { "type": "string", "enum": ["yes", "no", ""] },
+        "otelexportmetrics": { "type": "string", "enum": ["yes", "no", ""] },
+        "businessservices": { "type": "string" },
+        "uagagentclusters": { "type": "string" },
+        "extensionacceptlist": { "type": "string" },
+        "uagLoglvl": { "type": "string" },
+        "oteltraceendpoint": { "type": "string" },
+        "otelmetricsendpoint": { "type": "string" },
+        "otelservicename": { "type": "string" }
+      }
+    },
+    "uaDeployment": {
+      "type": "object",
+      "required": ["image"],
+      "properties": {
+        "image": {
+          "type": "object",
+          "required": ["tag"],
+          "properties": {
+            "repository": { "type": "string", "minLength": 1 },
+            "tag": {
+              "type": "string",
+              "minLength": 1,
+              "not": { "const": "latest" },
+              "description": "Pin to a specific UAC release tag. 'latest' is rejected to prevent silent drift."
+            }
+          }
+        },
+        "replicas": { "type": "integer", "minimum": 1, "maximum": 10 },
+        "storageRequest": { "type": "string" },
+        "storageClassName": { "type": "string" },
+        "accessMode": {
+          "type": "string",
+          "enum": ["ReadWriteOnce", "ReadWriteMany", "ReadOnlyMany"]
+        },
+        "pvc": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" }
+          }
+        },
+        "resources": {
+          "type": "object",
+          "properties": {
+            "requests": {
+              "type": "object",
+              "properties": {
+                "memory": { "type": "string" },
+                "cpu": { "type": "string" }
+              }
+            },
+            "limits": {
+              "type": "object",
+              "properties": {
+                "memory": { "type": "string" },
+                "cpu": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "workloadIdentity": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "clientId": { "type": "string" },
+        "serviceAccountName": { "type": "string" }
+      },
+      "if": { "properties": { "enabled": { "const": true } } },
+      "then": {
+        "required": ["clientId", "serviceAccountName"],
+        "properties": {
+          "clientId": { "minLength": 1 },
+          "serviceAccountName": { "minLength": 1 }
+        }
+      }
+    },
+    "istio": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "host": { "type": "string" },
+        "hostCredentials": { "type": "string" },
+        "TLSProtocol": { "type": "string", "enum": ["TLSV1_2", "TLSV1_3", ""] },
+        "udmConnectionPort": { "type": "integer" },
+        "udmConnectionPortInternal": { "type": "integer" }
+      },
+      "if": { "properties": { "enabled": { "const": true } } },
+      "then": {
+        "required": ["host"],
+        "properties": { "host": { "minLength": 1 } }
+      }
+    },
+    "UA": {
+      "type": "object",
+      "properties": {
+        "persistentVolume": {
+          "type": "object",
+          "properties": { "enabled": { "type": "boolean" } }
+        }
+      }
+    }
+  }
+}

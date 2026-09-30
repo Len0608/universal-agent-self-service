@@ -1,0 +1,46 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: ua-dev-k8s
+  namespace: sb-ua-dev-k8s
+spec:
+  interval: 10m
+  chart:
+    spec:
+      chart: helm-repo/helm/helm_ua_v1.5.1-aks
+      sourceRef:
+        kind: GitRepository
+        name: helm-charts
+        namespace: flux-system
+      interval: 1m
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+      remediateLastFailure: true
+  valuesFrom:
+    - kind: ConfigMap
+      name: aks-base-values
+      namespace: flux-system
+      optional: false
+  values:
+    uaDeployment:
+      image:
+        tag: "7.9.0.0"
+    uaConfig:
+      netname: "UA-DEV-K8S"
+      omsServers: "7878@ps1.stonebranchdev.cloud"
+      otelenabletracing: "yes"
+      otelexportmetrics: "yes"
+      oteltraceendpoint: "http://alloy.dev.svc.cluster.local:4318"
+      otelmetricsendpoint: "http://alloy.dev.svc.cluster.local:4318"
+      otelservicename: "ua-dev-k8s"
+    workloadIdentity:
+      enabled: true
+      clientId: "e0ad4b70-59ef-474b-832c-77ecc99d6c6f"
+      serviceAccountName: "ua-dev-k8s-sa"
+    istio:
+      host: "ua-dev-k8s.stonebranchdev.cloud"

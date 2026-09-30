@@ -1,0 +1,18 @@
+# Agent: UA-STONEBRANCH-K8S
+# Controller: ps2.stonebranchdev.cloud
+# Namespace: sb-ua-stonebranch-k8s  (ArgoCD creates this automatically)
+
+uaDeployment:
+  image:
+    tag: "7.9.0.0"
+
+uaConfig:
+  netname: "UA-STONEBRANCH-K8S"
+  omsServers: "7878@ps2.stonebranchdev.cloud"
+
+# No workload identity — this agent uses standard registry pull
+workloadIdentity:
+  enabled: false
+
+istio:
+  host: "ua-stonebranch-k8s.stonebranchdev.cloud"

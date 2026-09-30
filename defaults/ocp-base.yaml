@@ -1,0 +1,23 @@
+# Shared defaults for every OCP agent.
+
+uaDeployment:
+  image:
+    repository: stonebranch/universal-agent
+  replicas: 1
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+  storageRequest: 1Gi
+  storageClassName: "default"
+  accessMode: ReadWriteOnce
+  pvc:
+    enabled: true
+
+uaConfig:
+  uagAutostart: "yes"
+  omsAutostart: "no"
+  uemAutostart: "no"

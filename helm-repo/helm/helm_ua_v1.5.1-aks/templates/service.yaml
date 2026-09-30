@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-ua-service
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "universal-controller.labels" . | nindent 4 }}
+    app.kubernetes.io/component: ua-service
+spec:
+  selector:
+    {{- include "universal-controller.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: ua
+  ports:
+    - name: oms
+      port: 7878
+      targetPort: 7878
+      protocol: TCP
+    - name: udm
+      port: 7887
+      targetPort: 7887
+      protocol: TCP

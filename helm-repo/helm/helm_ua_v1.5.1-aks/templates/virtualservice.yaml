@@ -1,0 +1,20 @@
+{{- if .Values.istio.enabled }}
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: {{ .Release.Name }}-ua-vs
+  namespace: {{ .Release.Namespace }}
+spec:
+  gateways: ["{{ .Release.Name }}-ua-gateway"]
+  hosts: [{{ .Values.istio.host | quote }}]
+  tls:
+  - match:
+    - port: {{ .Values.istio.udmConnectionPort }}
+      sniHosts: [{{ .Values.istio.host | quote }}]
+    route:
+    - destination:
+        host: '{{ .Release.Name }}-ua-service.{{ .Release.Namespace }}.svc.cluster.local'
+        port:
+          number: 7887
+      weight: 100
+{{- end }}

@@ -1,0 +1,43 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: stonebranch
+  namespace: argocd
+spec:
+  description: Stonebranch Universal Agent and Controller deployments
+
+  sourceRepos:
+    - https://github.com/Len0608/universal-agent-self-service.git
+
+  destinations:
+    # Agents land in per-team namespaces prefixed sb-
+    - server: https://kubernetes.default.svc
+      namespace: "sb-*"
+    # OCP agents may use a different prefix
+    - server: https://kubernetes.default.svc
+      namespace: "stonebranch*"
+
+  # Allow ArgoCD to create namespaces for new agent directories
+  namespaceResourceWhitelist:
+    - group: ""
+      kind: Namespace
+
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+
+  roles:
+    - name: infra-admin
+      description: Full sync and override control for the infra team
+      policies:
+        - p, proj:stonebranch:infra-admin, applications, *, stonebranch/*, allow
+      groups:
+        - stonebranch-infra
+
+    - name: agent-owner
+      description: Read-only view for teams that own an agent Application
+      policies:
+        - p, proj:stonebranch:agent-owner, applications, get, stonebranch/*, allow
+        - p, proj:stonebranch:agent-owner, applications, sync, stonebranch/*, allow
+      groups:
+        - stonebranch-devteams
