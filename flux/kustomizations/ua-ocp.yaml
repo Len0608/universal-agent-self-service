@@ -8,7 +8,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: helm-charts
-  path: ./gitops/agents/ocp
+  path: ./agents/ocp
   prune: true
   wait: false
   timeout: 10m

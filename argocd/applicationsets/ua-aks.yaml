@@ -10,7 +10,7 @@ spec:
         repoURL: https://github.com/Len0608/universal-agent-self-service.git
         revision: HEAD
         directories:
-          - path: gitops/agents/aks/*
+          - path: agents/aks/*
   template:
     metadata:
       name: "ua-{{path.basename}}"
@@ -31,8 +31,8 @@ spec:
             releaseName: "ua-{{path.basename}}"
             valueFiles:
               # Base AKS defaults applied first, agent-specific values override
-              - $values/gitops/defaults/aks-base.yaml
-              - $values/gitops/agents/aks/{{path.basename}}/values.yaml
+              - $values/defaults/aks-base.yaml
+              - $values/agents/aks/{{path.basename}}/values.yaml
 
         # Source 2: values-only ref (no templates rendered from this source)
         - repoURL: https://github.com/Len0608/universal-agent-self-service.git

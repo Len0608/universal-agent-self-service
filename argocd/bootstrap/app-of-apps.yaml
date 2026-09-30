@@ -11,7 +11,7 @@ spec:
   source:
     repoURL: https://github.com/Len0608/universal-agent-self-service.git
     targetRevision: HEAD
-    path: gitops/argocd
+    path: argocd
     directory:
       recurse: true
       include: "*.yaml"

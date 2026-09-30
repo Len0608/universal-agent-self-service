@@ -10,7 +10,7 @@ spec:
     name: helm-charts
   # Flux recursively discovers and applies every HelmRelease manifest under this path.
   # Adding a new agent directory with a helmrelease.yaml is all a team needs to do.
-  path: ./gitops/agents/aks
+  path: ./agents/aks
   prune: true          # removes the HelmRelease (and thus the agent) when the dir is deleted
   wait: false          # don't block the parent reconcile while Helm charts settle
   timeout: 10m

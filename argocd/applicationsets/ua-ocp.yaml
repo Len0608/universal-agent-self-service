@@ -9,7 +9,7 @@ spec:
         repoURL: https://github.com/Len0608/universal-agent-self-service.git
         revision: HEAD
         directories:
-          - path: gitops/agents/ocp/*
+          - path: agents/ocp/*
   template:
     metadata:
       name: "ua-{{path.basename}}"
@@ -26,8 +26,8 @@ spec:
           helm:
             releaseName: "ua-{{path.basename}}"
             valueFiles:
-              - $values/gitops/defaults/ocp-base.yaml
-              - $values/gitops/agents/ocp/{{path.basename}}/values.yaml
+              - $values/defaults/ocp-base.yaml
+              - $values/agents/ocp/{{path.basename}}/values.yaml
 
         - repoURL: https://github.com/Len0608/universal-agent-self-service.git
           targetRevision: HEAD
