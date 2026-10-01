@@ -45,6 +45,8 @@ spec:
       uagAutostart: "yes"
       omsAutostart: "no"
       uemAutostart: "no"
+      ubrmountpointmode: "0700"
+      ubrshrmountpointmode: "0700"
     workloadIdentity:
       enabled: false
     istio:
