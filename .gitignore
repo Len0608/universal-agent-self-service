@@ -1,0 +1,29 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Helm
+*.tgz
+charts/
+.helm/
+
+# Rendered/debug output
+debug.yaml
+rendered/
+
+# Secrets that should never be committed
+*-secret.yaml
+*-kubeconfig.yaml
+kubeconfig
+.env
+
+# Python (new-agent.sh companion scripts)
+__pycache__/
+*.pyc
