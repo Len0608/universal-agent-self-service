@@ -4,7 +4,7 @@ set -e
 AGENT="${1:?Usage: new-agent.sh <agent-name> [oms-server]}"
 OMS="${2:-7878@ps2.stonebranchdev.cloud}"
 NETNAME=$(echo "$AGENT" | tr '[:lower:]-' '[:upper:]_')
-REPO="/tmp/stonebranch-gitops"
+REPO="$(dirname "$(realpath "$0")")"
 
 echo "Creating agent: $NETNAME -> $OMS"
 
