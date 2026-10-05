@@ -4,4 +4,5 @@ resources:
   - ua-stonebranch-k8s
   - ua-dev-k8s
   - mein-neuer-agent
+  - demo-agent-beta
 # Self-service: add one line per new agent directory here as part of the PR
